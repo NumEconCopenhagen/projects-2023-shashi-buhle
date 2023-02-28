@@ -1,8 +1,8 @@
-# \[Group name\]
+# \[shashi buhle\]
 
 **Group members:**
 - A
-- B
+- Lukas Heidtmann
 - C
 
 This repository contains  

@@ -1,7 +1,7 @@
 # \[shashi buhle\]
 
 **Group members:**
-- A
+- Francesco Arous
 - Lukas Heidtmann
 - C
 

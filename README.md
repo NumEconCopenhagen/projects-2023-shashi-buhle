@@ -3,7 +3,7 @@
 **Group members:**
 - Francesco Arous
 - Lukas Heidtmann
-- C
+- Albert Sniec
 
 This repository contains  
 1. Inaugural project. 

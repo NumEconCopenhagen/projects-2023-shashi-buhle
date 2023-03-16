@@ -13,29 +13,29 @@ class HouseholdSpecializationModelClass:
         """ setup model """
 
         # a. create namespaces
-        par = self.par = SimpleNamespace()
-        sol = self.sol = SimpleNamespace()
+        par = self.par = SimpleNamespace()         # creates sort of a dictionary for all parameters
+        sol = self.sol = SimpleNamespace()         # creates sort of a dictionary for all solutions 
 
-        # b. preferences
+        # b. defining preferences as specified in the model
         par.rho = 2.0
         par.nu = 0.001
         par.epsilon = 1.0
         par.omega = 0.5 
 
-        # c. household production
+        # c. defining household production as specified in the model
         par.alpha = 0.5
         par.sigma = 1.0
 
-        # d. wages
+        # d. defining wages as specified in the model
         par.wM = 1.0
         par.wF = 1.0
-        par.wF_vec = np.linspace(0.8,1.2,5)
+        par.wF_vec = np.linspace(0.8,1.2,5)    #this is for the plot in question 2 
 
-        # e. targets
+        # e. targets (for the regression in Question 3 onwards)
         par.beta0_target = 0.4
         par.beta1_target = -0.1
 
-        # f. solution
+        # f. definig empty matrixes for the solution
         sol.LM_vec = np.zeros(par.wF_vec.size)
         sol.HM_vec = np.zeros(par.wF_vec.size)
         sol.LF_vec = np.zeros(par.wF_vec.size)
@@ -44,7 +44,7 @@ class HouseholdSpecializationModelClass:
         sol.beta0 = np.nan
         sol.beta1 = np.nan
 
-    def calc_utility(self,LM,HM,LF,HF):
+    def calc_utility(self,LM,HM,LF,HF):                 # This is the utility function we are trying to maximize
         """ calculate utility """
 
         par = self.par
@@ -54,8 +54,13 @@ class HouseholdSpecializationModelClass:
         C = par.wM*LM + par.wF*LF
 
         # b. home production
-        H = HM**(1-par.alpha)*HF**par.alpha
-
+        if par.sigma == 0:
+            H = np.fmin(HM,HF)
+        elif par.sigma == 1:
+            H = HM**(1-par.alpha)*HF**par.alpha
+        else:
+            H= ((1-par.alpha)*H**((par.sigma-1)/par.sigma)+par.alpha*HF**((par.sigma-1)/par.sigma))**(par.sigma/(par.sigma-1))
+                                                        
         # c. total consumption utility
         Q = C**par.omega*H**(1-par.omega)
         utility = np.fmax(Q,1e-8)**(1-par.rho)/(1-par.rho)
@@ -77,9 +82,9 @@ class HouseholdSpecializationModelClass:
         
         # a. all possible choices
         x = np.linspace(0,24,49)
-        LM,HM,LF,HF = np.meshgrid(x,x,x,x) # all combinations
+        LM,HM,LF,HF = np.meshgrid(x,x,x,x) # creates all combinations of hours worked in market and at home by M and F
     
-        LM = LM.ravel() # vector
+        LM = LM.ravel() # turns the utput into a vector
         HM = HM.ravel()
         LF = LF.ravel()
         HF = HF.ravel()
@@ -87,12 +92,12 @@ class HouseholdSpecializationModelClass:
         # b. calculate utility
         u = self.calc_utility(LM,HM,LF,HF)
     
-        # c. set to minus infinity if constraint is broken
+        # c. set the value of utility to minus infinity if constraint is broken
         I = (LM+HM > 24) | (LF+HF > 24) # | is "or"
         u[I] = -np.inf
     
         # d. find maximizing argument
-        j = np.argmax(u)
+        j = np.argmax(u)    # This returns the index of the maximizing eleement of u 
         
         opt.LM = LM[j]
         opt.HM = HM[j]

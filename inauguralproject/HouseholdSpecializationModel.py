@@ -44,8 +44,11 @@ class HouseholdSpecializationModelClass:
         sol.beta0 = np.nan
         sol.beta1 = np.nan
 
+    H = 0       #defining H like a retard
     def calc_utility(self,LM,HM,LF,HF):                 # This is the utility function we are trying to maximize
         """ calculate utility """
+
+        global H        #telling this methode to use variable outside the __init__ methode (it also works for variables outside the class)
 
         par = self.par
         sol = self.sol
@@ -59,7 +62,7 @@ class HouseholdSpecializationModelClass:
         elif par.sigma == 1:
             H = HM**(1-par.alpha)*HF**par.alpha
         else:
-            H= ((1-par.alpha)*H**((par.sigma-1)/par.sigma)+par.alpha*HF**((par.sigma-1)/par.sigma))**(par.sigma/(par.sigma-1))
+            H = ((1-par.alpha)*H**((par.sigma-1)/par.sigma)+par.alpha*HF**((par.sigma-1)/par.sigma))**(par.sigma/(par.sigma-1))
                                                         
         # c. total consumption utility
         Q = C**par.omega*H**(1-par.omega)

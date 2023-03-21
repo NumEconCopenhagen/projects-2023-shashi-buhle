@@ -117,7 +117,22 @@ class HouseholdSpecializationModelClass:
     def solve(self,do_print=False):
         """ solve model continously """
 
-        pass    
+        opt = SimpleNamespace()
+
+        #create the function we are going to optimize 
+        def value_of_choice(x):
+            HM, LM, HF, LF = x
+            return -self.calc_utility(HM, LM, HF, LF)
+        
+        constraints = ({'type': 'ineq', 'fun': lambda HM, LM: 24-HM-LM}, {'type': 'ineq', 'fun': lambda HF, LF: 24-HF-LF})
+        bounds = ((0,24), (0,24), (0,24), (0,24))
+        initial_guess = [1, 1, 1, 1]
+
+        solution_continuous = optimize.minimize(value_of_choice, initial_guess, method='Nelder-Mead', bounds=bounds, constraints=constraints)
+
+        opt.HM, opt.LM, opt.HF, opt.LF = solution_continuous.x
+
+        return opt
 
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """

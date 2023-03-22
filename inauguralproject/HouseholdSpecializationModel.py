@@ -121,16 +121,16 @@ class HouseholdSpecializationModelClass:
 
         #create the function we are going to optimize 
         def value_of_choice(x):
-            HM, LM, HF, LF = x
-            return -self.calc_utility(HM, LM, HF, LF)
+            LM, HM, LF, HF = x
+            return -self.calc_utility(LM, HM, LF, HF)
         
-        constraints = ({'type': 'ineq', 'fun': lambda HM, LM: 24-HM-LM}, {'type': 'ineq', 'fun': lambda HF, LF: 24-HF-LF})
+        constraints = ({'type': 'ineq', 'fun': lambda HF, LF: 24-HF-LF}, {'type': 'ineq', 'fun': lambda HM, LM: 24-HM-LM})
         bounds = ((0,24), (0,24), (0,24), (0,24))
-        initial_guess = [1, 1, 1, 1]
+        initial_guess = [6, 6, 6, 6]
 
         solution_continuous = optimize.minimize(value_of_choice, initial_guess, method='Nelder-Mead', bounds=bounds, constraints=constraints)
 
-        opt.HM, opt.LM, opt.HF, opt.LF = solution_continuous.x
+        opt.LM, opt.HM, opt.LF, opt.HF = solution_continuous.x
 
         return opt
 

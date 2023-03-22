@@ -56,6 +56,7 @@ class HouseholdSpecializationModelClass:
         # a. consumption of market goods
         C = par.wM*LM + par.wF*LF
 
+        H=0
         # b. home production
         if par.sigma == 0:
             H = np.fmin(HM,HF)

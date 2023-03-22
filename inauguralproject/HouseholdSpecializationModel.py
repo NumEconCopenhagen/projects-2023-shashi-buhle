@@ -48,22 +48,19 @@ class HouseholdSpecializationModelClass:
     def calc_utility(self,LM,HM,LF,HF):                 # This is the utility function we are trying to maximize
         """ calculate utility """
 
-        global H        #telling this methode to use variable outside the __init__ methode (it also works for variables outside the class)
-
         par = self.par
         sol = self.sol
 
         # a. consumption of market goods
         C = par.wM*LM + par.wF*LF
 
-        H=0
         # b. home production
         if par.sigma == 0:
             H = np.fmin(HM,HF)
         elif par.sigma == 1:
             H = HM**(1-par.alpha)*HF**par.alpha
         else:
-            H = ((1-par.alpha)*H**((par.sigma-1)/par.sigma)+par.alpha*HF**((par.sigma-1)/par.sigma))**(par.sigma/(par.sigma-1))
+            H = ((1-par.alpha)*HM**((par.sigma-1)/par.sigma)+par.alpha*HF**((par.sigma-1)/par.sigma))**(par.sigma/(par.sigma-1))
                                                         
         # c. total consumption utility
         Q = C**par.omega*H**(1-par.omega)

@@ -7,6 +7,7 @@ from scipy import optimize
 import pandas as pd 
 import matplotlib.pyplot as plt
 
+
 class HouseholdSpecializationModelClass:
 
     def __init__(self):
@@ -44,8 +45,9 @@ class HouseholdSpecializationModelClass:
         sol.beta0 = np.nan
         sol.beta1 = np.nan
 
-    H = 0       #defining H like a retard
-    def calc_utility(self,LM,HM,LF,HF):                 # This is the utility function we are trying to maximize
+
+    H = 0       #defining H so that the for-loop below does run 
+    def calc_utility(self,LM,HM,LF,HF):                 
         """ calculate utility """
 
         par = self.par
@@ -73,6 +75,7 @@ class HouseholdSpecializationModelClass:
         disutility = par.nu*(TM**epsilon_/epsilon_+TF**epsilon_/epsilon_)
         
         return utility - disutility
+
 
     def solve_discrete(self,do_print=False):
         """ solve model discretely """
@@ -110,32 +113,39 @@ class HouseholdSpecializationModelClass:
             for k,v in opt.__dict__.items():
                 print(f'{k} = {v:6.4f}')
 
-        return opt
+        return opt 
+
 
     def solve(self,do_print=False):
         """ solve model continously """
 
+        #create a SimpleNamespace to store optimal values 
         opt = SimpleNamespace()
 
-        #create the function we are going to optimize 
+        #define an objective function we are going to optimize. Basically the negative utility function we can minimize
         def value_of_choice(x):
             LM, HM, LF, HF = x
             return -self.calc_utility(LM, HM, LF, HF)
         
+        #set constraints, bounds and initial value
         constraints = ({'type': 'ineq', 'fun': lambda HF, LF: 24-HF-LF}, {'type': 'ineq', 'fun': lambda HM, LM: 24-HM-LM})
         bounds = ((0,24), (0,24), (0,24), (0,24))
         initial_guess = [6, 6, 6, 6]
 
+        #call on the minimize-solver from the scipy/optimize package
         solution_continuous = optimize.minimize(value_of_choice, initial_guess, method='Nelder-Mead', bounds=bounds, constraints=constraints)
 
+        #assigning the optimal values to the SimpleNamespace
         opt.LM, opt.HM, opt.LF, opt.HF = solution_continuous.x
 
         return opt
+
 
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
 
         pass
+
 
     def run_regression(self):
         """ run regression """
@@ -147,6 +157,7 @@ class HouseholdSpecializationModelClass:
         y = np.log(sol.HF_vec/sol.HM_vec)
         A = np.vstack([np.ones(x.size),x]).T
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
+    
     
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """

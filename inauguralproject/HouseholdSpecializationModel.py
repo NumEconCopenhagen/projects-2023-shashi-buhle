@@ -188,19 +188,21 @@ class HouseholdSpecializationModelClass:
         par = self.par
         sol = self.sol
 
-    #Defining our value_of_choice function to minimize 
-        def value_of_choice(x):
-            alpha, sigma = x
-            par.alpha = alpha
-            par.sigma = sigma
+        #Defining our value_of_choice function to minimize 
+        def objective_function(x):
+            par.alpha = x[0]
+            par.sigma = x[1]
             self.solve_wF_vec()
             self.run_regression()
             return(par.beta0_target-sol.beta0)**2 + (par.beta1_target-sol.beta1)**2
 
+        bounds = [(0, 1), (0, 5)]
+
         initial_guess = [0.8, 1]
 
-        solution = optimize.minimize(value_of_choice, initial_guess, method='Nelder-Mead')
+        solution = optimize.minimize(value_of_choice, initial_guess,bounds=bounds, method='Nelder-Mead')
 
-        alpha, sigma = solution.x
+        alpha = solution.x[0]
+        sigma = solution.x[1]
 
         return alpha, sigma

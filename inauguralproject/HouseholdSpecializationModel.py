@@ -178,7 +178,7 @@ class HouseholdSpecializationModelClass:
         y = np.log(sol.HF_vec/sol.HM_vec)
         A = np.vstack([np.ones(x.size),x]).T
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
-        
+
         return sol.beta0, sol.beta1
     
 
@@ -187,3 +187,20 @@ class HouseholdSpecializationModelClass:
 
         par = self.par
         sol = self.sol
+
+    #Defining our value_of_choice function to minimize 
+        def value_of_choice(x):
+            alpha, sigma = x
+            par.alpha = alpha
+            par.sigma = sigma
+            self.solve_wF_vec()
+            self.run_regression()
+            return(par.beta0_target-sol.beta0)**2 + (par.beta1_target-sol.beta1)**2
+
+        initial_guess = [0.8, 1]
+
+        solution = optimize.minimize(value_of_choice, initial_guess, method='Nelder-Mead')
+
+        alpha, sigma = solution.x
+
+        return alpha, sigma

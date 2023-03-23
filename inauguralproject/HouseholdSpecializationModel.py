@@ -178,6 +178,8 @@ class HouseholdSpecializationModelClass:
         y = np.log(sol.HF_vec/sol.HM_vec)
         A = np.vstack([np.ones(x.size),x]).T
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
+        
+        return sol.beta0, sol.beta1
     
 
     def estimate(self,alpha=None,sigma=None):

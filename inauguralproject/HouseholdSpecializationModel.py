@@ -144,7 +144,25 @@ class HouseholdSpecializationModelClass:
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
 
-        pass
+        #loop over the vector of female wage and change the value of wF to whereever we are in the vector 
+        for i, wF in enumerate(par.wF_vec):
+            par.wF = wF
+
+            #solve the model with the discrete solver if keyword argument above is true
+            if discrete == True:
+                optimal = self.solve_discrete()
+            
+            #use the contiuous solver if keyword argument above is false 
+            else:
+                optimal = self.solve()
+
+            #store the resulting values 
+            sol.LM_vec[i] = optimal.LM
+            sol.HM_vec[i] = optimal.HM
+            sol.LF_vec[i] = optimal.LF
+            sol.HF_vec[i] = optimal.HF
+
+        return sol
 
 
     def run_regression(self):
@@ -158,7 +176,7 @@ class HouseholdSpecializationModelClass:
         A = np.vstack([np.ones(x.size),x]).T
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
     
-    
+
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
 

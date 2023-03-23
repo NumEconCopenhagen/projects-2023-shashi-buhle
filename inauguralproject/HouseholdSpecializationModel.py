@@ -144,6 +144,9 @@ class HouseholdSpecializationModelClass:
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
 
+        par = self.par
+        sol = self.sol
+
         #loop over the vector of female wage and change the value of wF to whereever we are in the vector 
         for i, wF in enumerate(par.wF_vec):
             par.wF = wF
@@ -180,4 +183,5 @@ class HouseholdSpecializationModelClass:
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
 
-        pass
+        par = self.par
+        sol = self.sol

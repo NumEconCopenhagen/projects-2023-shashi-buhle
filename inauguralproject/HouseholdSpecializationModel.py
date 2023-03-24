@@ -45,6 +45,9 @@ class HouseholdSpecializationModelClass:
         sol.beta0 = np.nan
         sol.beta1 = np.nan
 
+        sol.alphasol = np.nan
+        sol.sigmasol = np.nan
+
 
     H = 0       #defining H so that the for-loop below does run 
     def calc_utility(self,LM,HM,LF,HF):                 
@@ -165,7 +168,7 @@ class HouseholdSpecializationModelClass:
             sol.LF_vec[i] = optimal.LF
             sol.HF_vec[i] = optimal.HF
 
-        return sol
+        return sol.LM_vec, sol.HM_vec, sol.LF_vec, sol.HF_vec
 
 
     def run_regression(self):
@@ -182,13 +185,13 @@ class HouseholdSpecializationModelClass:
         return sol.beta0, sol.beta1
     
 
-    def estimate(self,alpha=None,sigma=None):
+    def printing_estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
 
         par = self.par
         sol = self.sol
 
-        #Defining our value_of_choice function to minimize 
+        #Defining our objective function which we are minimizing 
         def objective_function(x):
             par.alpha = x[0]
             par.sigma = x[1]
@@ -196,13 +199,19 @@ class HouseholdSpecializationModelClass:
             self.run_regression()
             return(par.beta0_target-sol.beta0)**2 + (par.beta1_target-sol.beta1)**2
 
+        #creating bounds and initial guess
         bounds = [(0, 1), (0, 5)]
-
         initial_guess = [0.8, 1]
 
-        solution = optimize.minimize(value_of_choice, initial_guess,bounds=bounds, method='Nelder-Mead')
+        #call the solver to find the optimal alphas and sigmas here 
+        solution = optimize.minimize(objective_function, initial_guess, bounds=bounds, method='SLSQP')
 
-        alpha = solution.x[0]
-        sigma = solution.x[1]
+        #creating variables to store the optimal alphas and sigmas the solver found 
+        sol.alphasol = solution.x[0]
+        sol.sigmasol = solution.x[1]
 
-        return alpha, sigma
+        #printing the results in green color 
+        print(f'\033[32mRunning the function was a success: {solution.success}\n\n' 
+              + f'Results:\n\n'
+              + f'The alpha fitted to the data: {sol.alphasol:4f}\n\n'
+              + f'The sigma fitted to the data: {sol.sigmasol:4f}')

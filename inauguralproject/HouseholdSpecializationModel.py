@@ -48,6 +48,8 @@ class HouseholdSpecializationModelClass:
         sol.alphasol = np.nan
         sol.sigmasol = np.nan
 
+        sol.sigma_when_alpha_fixed = np.nan
+
 
     H = 0       #defining H so that the for-loop below does run 
     def calc_utility(self,LM,HM,LF,HF):                 
@@ -186,7 +188,7 @@ class HouseholdSpecializationModelClass:
     
 
     def printing_estimate(self,alpha=None,sigma=None):
-        """ estimate alpha and sigma """
+        """ estimate alpha and sigma and print out their values"""
 
         par = self.par
         sol = self.sol
@@ -203,10 +205,10 @@ class HouseholdSpecializationModelClass:
         bounds = [(0, 1), (0, 5)]
         initial_guess = [0.8, 1]
 
-        #call the solver to find the optimal alphas and sigmas here 
+        #call the solver to find the optimal alpha and sigma here 
         solution = optimize.minimize(objective_function, initial_guess, bounds=bounds, method='SLSQP')
 
-        #creating variables to store the optimal alphas and sigmas the solver found 
+        #creating variables to store the optimal alpha and sigma the solver found 
         sol.alphasol = solution.x[0]
         sol.sigmasol = solution.x[1]
 
@@ -215,3 +217,37 @@ class HouseholdSpecializationModelClass:
               + f'Results:\n\n'
               + f'The alpha fitted to the data: {sol.alphasol:4f}\n\n'
               + f'The sigma fitted to the data: {sol.sigmasol:4f}')
+        
+
+    def printing_estimate_alpha(self, sigma=None):
+        '''estimate value of sigma while alpha is fixed to 0.5'''
+
+        par = self.par
+        sol = self.sol
+
+        #setting alpha to 0.5 as specified 
+        par.alpha = 0.5
+
+        #Defining our objective function which we are minimizing 
+        def objective_function(x):
+            par.sigma = x
+            self.solve_wF_vec()
+            self.run_regression()
+            return(par.beta0_target-sol.beta0)**2 + (par.beta1_target-sol.beta1)**2
+        
+        #creating bounds and initial guess
+        bounds = [(0, 5)]
+        initial_guess = [1]
+
+        #call the solver to find the optimal sigma here 
+        solution = optimize.minimize(objective_function, initial_guess, bounds=bounds, method='SLSQP')
+
+        #creating variable to store the optimal sigma the solver found
+        sol.sigma_when_alpha_fixed = solution.x[0]
+
+        #printing the result in green color 
+        print(f'\033[32mRunning the function was a success: {solution.success}\n\n' 
+              + f'Result:\n\n'
+              + f'The alpha was set to: {par.alpha:4f}\n\n'
+              + f'The sigma fitted to the data is: {sol.sigma_when_alpha_fixed:4f}')
+

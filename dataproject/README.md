@@ -14,3 +14,4 @@ All of our datatsets are read in through the World Bank API and adapted into our
 
 **Dependencies:** Standard Anaconda Python 3 installation
 
+pip install pandas_datareader

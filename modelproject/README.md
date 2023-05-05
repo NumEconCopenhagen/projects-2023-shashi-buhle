@@ -1,4 +1,4 @@
-# Model analysis project
+# Model analysis project team shashi-buhle
 
 Our project is titled **PROJECT TITLE** and is about EXPLAIN.
 
